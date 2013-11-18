@@ -17,37 +17,45 @@ FLAGS=-D__MACOSX_CORE__ -c -g
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework IOKit -framework Carbon  -framework OpenGL \
 	-framework GLUT -framework Foundation \
-	-framework AppKit -lstdc++ -lm 
+	-framework AppKit -lstdc++ -lm
 endif
 
 HELLOBJS= mdns.o hello.o
 
-SERVOBJS= mdns.o server.o
+# SERVOBJS= mdns.o server.o
 
-CLIENTOBJS = mdns.o client.o
+# CLIENTOBJS = mdns.o client.o
 
-all: hello server client
+OSCOBJS = osc-server.o
 
-hello: $(HELLOBJS)
-	$(CXX) -o hello $(HELLOBJS) $(LIBS) $(INCLUDE)
+all: osc-server
+	
+osc-server: $(OSCOBJS)
+	$(CXX) -o osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
 
-server: $(SERVOBJS)
-	$(CXX) -o server $(SERVOBJS) $(LIBS) $(INCLUDE)
+# hello: $(HELLOBJS)
+# 	$(CXX) -o hello $(HELLOBJS) $(LIBS) $(INCLUDE)
+# 
+# client: $(CLIENTOBJS)
+# 	$(CXX) -o client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
 
-client: $(CLIENTOBJS)
-	$(CXX) -o client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
+osc-server.o: osc-server.cpp
+	$(CXX) $(FLAGS) $(INCLUDES) osc-server.cpp
 
-hello.o: hello.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) hello.cpp
+# hello.o: hello.cpp
+# 	$(CXX) $(FLAGS) $(INCLUDES) hello.cpp
 
-server.o: server.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) server.cpp
+# server: $(SERVOBJS)
+# 	$(CXX) -o server $(SERVOBJS) $(LIBS) $(INCLUDE)
 
-client.o: client.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) client.cpp
-
-mdns.o: mdns.h mdns.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) $(INCLUDEDIR)mdns.cpp
+# server.o: server.cpp
+# 	$(CXX) $(FLAGS) $(INCLUDES) server.cpp
+# 
+# client.o: client.cpp
+# 	$(CXX) $(FLAGS) $(INCLUDES) client.cpp
+# 
+# mdns.o: mdns.h mdns.cpp
+# 	$(CXX) $(FLAGS) $(INCLUDES) $(INCLUDEDIR)mdns.cpp
 
 
 # OBJS=  RtAudio.o chuck_fft.o Thread.o Stk.o VoxeLib.o voxelMeter.o
@@ -74,6 +82,7 @@ mdns.o: mdns.h mdns.cpp
 # 	$(CXX) $(FLAGS) RtAudio.cpp
 
 clean:
-	rm -f *~ *# *.o hello
-	rm -f *~ *# *.o server
-	rm -f *~ *# *.o client
+	# rm -f *~ *# *.o hello
+	# rm -f *~ *# *.o server
+	# rm -f *~ *# *.o client
+	rm -f *~ *# *.o osc-server
