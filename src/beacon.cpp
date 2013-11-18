@@ -28,6 +28,7 @@ int done = 0;
 struct member {
     int pid;
     char hostname[128];
+    lo_timetag timetag;
 };
 
 vector<member> members;
@@ -48,11 +49,11 @@ int main()
     lo_address t = lo_address_new("224.0.0.1", "7770");
     // lo_server multi = lo_server_new_multicast("drone", "7771", error);
     /* start a new server on port 7770 */
-    lo_server_thread st = lo_server_thread_new("7770", error);
+    lo_server_thread st = lo_server_thread_new_multicast("224.0.0.1", "7770", error);
 
     /* add method that will match the path /foo/bar, with two numbers, coerced
      * to float and int */
-    lo_server_thread_add_method(st, "/ping", "fi", ping_handler, NULL);
+    lo_server_thread_add_method(st, "/ping", "is", ping_handler, NULL);
 
     /* add method that will match the path /quit with no args */
     lo_server_thread_add_method(st, "/quit", "", quit_handler, NULL);
@@ -71,9 +72,8 @@ int main()
         gethostname(hostname, sizeof(hostname));
         
         int pid = getpid();
-        cerr << "pid: " << pid << " || hostname : " << hostname << endl;
+        // cerr << "pid: " << pid << " || hostname : " << hostname << endl;
         lo_send(t, "/ping", "is", pid, hostname);
-        // lo_send_from(t, st, now, "/foo/bar", "ff", 0.12345678f, 23.0f);
     }
 
     lo_server_thread_free(st);
@@ -92,9 +92,12 @@ void error(int num, const char *msg, const char *path)
 int ping_handler(const char *path, const char *types, lo_arg ** argv,
                 int argc, void *data, void *user_data)
 {
-    cerr << "PID: " << argv[0]->i << " || path : " << argv[1]->s << endl;
-    /* example showing pulling the argument values out of the argv array */
-    printf("%s <- f:%f, i:%d\n\n", path, argv[0]->f, argv[1]->i);
+    member messageSender;
+    messageSender.pid = argv[0]->i;
+    strcpy(messageSender.hostname, (char *)argv[1]);
+    lo_timetag_now(&messageSender.timetag);
+    char *name = (char *)argv[1];
+    cerr << "PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
     fflush(stdout);
 
     return 0;
