@@ -45,10 +45,10 @@ int main()
     /* make address for multicast ip
      * pick a port number for you by passing NULL as the last argument */
 
-    lo_address t = lo_address_new("localhost", "7770");
+    lo_address t = lo_address_new("224.0.0.1", "7770");
     // lo_server multi = lo_server_new_multicast("drone", "7771", error);
     /* start a new server on port 7770 */
-    lo_server_thread st = lo_server_thread_new_multicast("239.255.0.1", "7770", error);
+    lo_server_thread st = lo_server_thread_new("7770", error);
 
     /* add method that will match the path /foo/bar, with two numbers, coerced
      * to float and int */
