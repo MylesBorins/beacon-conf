@@ -18,6 +18,26 @@ ok go!
 
 | (• ◡•)| (❍ᴥ❍ʋ)
 
+##Dependencies
+You are going to need liblo for this one
+
+on osx
+```
+brew install liblo
+```
+
+on debian based linux
+```
+sudo apt-get install liblo
+```
+
+on fedora based linux
+```
+sudo yum install liblo
+```
+
+on gentoo I'm pretty sure you know what to do :P
+
 ## Getting Started
 
 run make in the root directory
