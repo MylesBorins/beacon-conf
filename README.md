@@ -31,7 +31,7 @@ on debian based linux
 sudo apt-get install liblo-dev
 ```
 
-Also librtaudio4
+Also librtaudio4 and libasound-dev
 
 on gentoo I'm pretty sure you know what to do :P
 

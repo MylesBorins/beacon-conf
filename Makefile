@@ -13,7 +13,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 FLAGS=-D__UNIX_JACK__ -c -g -L/opt/lib
 LIBS=-lasound -lpthread -ljack -lstdc++ -lm \
-	-lGL -lGLU -lglut -ldns_sd -llo 
+	-lGL -lGLU -lglut -llo 
 endif
 ifeq ($(UNAME), Darwin)
 FLAGS=-D__MACOSX_CORE__ -c -g
