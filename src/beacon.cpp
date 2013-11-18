@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+#include <cstring> 
 
 #include "lo/lo.h"
 using namespace std;
