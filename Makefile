@@ -25,11 +25,12 @@ endif
 
 SERVEROBJS = osc-server.o 
 CLIENTOBJS = osc-client.o
+BEACONOBJS = beacon.o
 
 all: beacon osc-server osc-client
 
-beacon: $(CLIENTOBJS)
-	$(CXX) -o $(BINDIR)beacon $(CLIENTOBJS) $(LIBS) $(INCLUDE)
+beacon: $(BEACONOBJS)
+	$(CXX) -o $(BINDIR)beacon $(BEACONOBJS) $(LIBS) $(INCLUDE)
 	
 osc-server: $(SERVEROBJS)
 	$(CXX) -o $(BINDIR)osc-server $(SERVEROBJS) $(LIBS) $(INCLUDE)

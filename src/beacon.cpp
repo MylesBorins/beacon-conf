@@ -17,8 +17,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "lo/lo.h"
+using namespace std;
 
 int done = 0;
 
@@ -35,8 +37,13 @@ int quit_handler(const char *path, const char *types, lo_arg ** argv,
 
 int main()
 {
+    /* make address for multicast ip
+     * pick a port number for you by passing NULL as the last argument */
+
+    lo_address t = lo_address_new("239.255.0.1", "7770");
+    // lo_server multi = lo_server_new_multicast("drone", "7771", error);
     /* start a new server on port 7770 */
-    lo_server_thread st = lo_server_thread_new("7770", error);
+    lo_server_thread st = lo_server_thread_new_multicast("239.255.0.1", "7770", error);
 
     /* add method that will match any path and args */
     lo_server_thread_add_method(st, NULL, NULL, generic_handler, NULL);
@@ -49,13 +56,19 @@ int main()
     lo_server_thread_add_method(st, "/quit", "", quit_handler, NULL);
 
     lo_server_thread_start(st);
-
+    
+    
     while (!done) {
 #ifdef WIN32
         Sleep(1);
 #else
-        usleep(1000);
+        usleep(1000000);
 #endif
+        lo_timetag now;
+        lo_timetag_now(&now);
+        cerr << now.sec << endl;
+        lo_send(t, "/foo/bar", "ff", 0.12345f, 0.987653f);
+        // lo_send_from(t, st, now, "/foo/bar", "ff", 0.12345678f, 23.0f);
     }
 
     lo_server_thread_free(st);
