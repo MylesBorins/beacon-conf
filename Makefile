@@ -6,6 +6,7 @@ INCLUDEDIR=./include/
 VPATH=$(INCLUDEDIR)
 
 SRCDIR=./src/
+BINDIR=./bin/
 
 UNAME := $(shell uname)
 
@@ -27,7 +28,7 @@ OSCOBJS = osc-server.o
 all: osc-server
 	
 osc-server: $(OSCOBJS)
-	$(CXX) -o bin/osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
+	$(CXX) -o $(BINDIR)osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
 
 osc-server.o: $(SRCDIR)osc-server.cpp
 	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-server.cpp
