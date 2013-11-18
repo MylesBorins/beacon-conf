@@ -11,9 +11,9 @@ BINDIR=./bin/
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-FLAGS=-D__UNIX_JACK__ -c -g
+FLAGS=-D__UNIX_JACK__ -c -g -L/opt/lib
 LIBS=-lasound -lpthread -ljack -lstdc++ -lm \
-	-lGL -lGLU -lglut -ldns_sd -llo
+	-lGL -lGLU -lglut -ldns_sd -llo 
 endif
 ifeq ($(UNAME), Darwin)
 FLAGS=-D__MACOSX_CORE__ -c -g
@@ -23,31 +23,22 @@ LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework AppKit -lstdc++ -lm -llo
 endif
 
-OSCOBJS = osc-server.o
+SERVEROBJS = osc-server.o 
+CLIENTOBJS = osc-client.o
 
-all: osc-server
+all: osc-server osc-client
 	
-osc-server: $(OSCOBJS)
-	$(CXX) -o $(BINDIR)osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
+osc-server: $(SERVEROBJS)
+	$(CXX) -o $(BINDIR)osc-server $(SERVEROBJS) $(LIBS) $(INCLUDE)
 
+osc-client: $(CLIENTOBJS)
+	$(CXX) -o $(BINDIR)osc-client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
+	
 osc-server.o: $(SRCDIR)osc-server.cpp
 	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-server.cpp
 
-# hello.o: hello.cpp
-# 	$(CXX) $(FLAGS) $(INCLUDES) hello.cpp
-
-# server: $(SERVOBJS)
-# 	$(CXX) -o server $(SERVOBJS) $(LIBS) $(INCLUDE)
-
-# server.o: server.cpp
-# 	$(CXX) $(FLAGS) $(INCLUDES) server.cpp
-# 
-# client.o: client.cpp
-# 	$(CXX) $(FLAGS) $(INCLUDES) client.cpp
-# 
-# mdns.o: mdns.h mdns.cpp
-# 	$(CXX) $(FLAGS) $(INCLUDES) $(INCLUDEDIR)mdns.cpp
-
+osc-client.o: $(SRCDIR)osc-client.cpp
+	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-client.cpp
 
 # OBJS=  RtAudio.o chuck_fft.o Thread.o Stk.o VoxeLib.o voxelMeter.o
 # 

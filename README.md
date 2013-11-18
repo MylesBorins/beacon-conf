@@ -28,13 +28,10 @@ brew install liblo
 
 on debian based linux
 ```
-sudo apt-get install liblo
+sudo apt-get install liblo-dev
 ```
 
-on fedora based linux
-```
-sudo yum install liblo
-```
+Also librtaudio4
 
 on gentoo I'm pretty sure you know what to do :P
 
