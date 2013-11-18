@@ -26,14 +26,21 @@ endif
 SERVEROBJS = osc-server.o 
 CLIENTOBJS = osc-client.o
 
-all: osc-server osc-client
+all: beacon osc-server osc-client
+
+beacon: $(CLIENTOBJS)
+	$(CXX) -o $(BINDIR)beacon $(CLIENTOBJS) $(LIBS) $(INCLUDE)
 	
 osc-server: $(SERVEROBJS)
 	$(CXX) -o $(BINDIR)osc-server $(SERVEROBJS) $(LIBS) $(INCLUDE)
 
 osc-client: $(CLIENTOBJS)
 	$(CXX) -o $(BINDIR)osc-client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
-	
+
+
+beacon.o: $(SRCDIR)beacon.cpp
+	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)beacon.cpp
+
 osc-server.o: $(SRCDIR)osc-server.cpp
 	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-server.cpp
 
@@ -66,3 +73,8 @@ osc-client.o: $(SRCDIR)osc-client.cpp
 clean:
 	rm -f *~ *# *.o osc-server
 	rm -f *~ *# *.o $(BINDIR)osc-server
+	rm -f *~ *# *.o osc-client
+	rm -f *~ *# *.o $(BINDIR)osc-client
+	rm -f *~ *# *.o beacon	
+	rm -f *~ *# *.o $(BINDIR)beacon	
+	
