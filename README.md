@@ -19,7 +19,16 @@ ok go!
 | (• ◡•)| (❍ᴥ❍ʋ)
 
 ##Dependencies
-You are going to need liblo for this one
+
+dependencies include
+
+liblo
+ibasound-dev
+librtaudio4
+jack
+libjack-dev
+freeglut3
+freeglut3-dev
 
 on osx
 ```
@@ -31,7 +40,7 @@ on debian based linux
 sudo apt-get install liblo-dev
 ```
 
-Also librtaudio4 and libasound-dev
+Also librtaudio4 and libasound-dev and jack
 
 on gentoo I'm pretty sure you know what to do :P
 
