@@ -37,6 +37,8 @@ vector<member> members;
 
 int memberCompare(member a, member b);
 
+void memberCleanup(vector<member> checkMems);
+
 void error(int num, const char *m, const char *path);
 
 int ping_handler(const char *path, const char *types, lo_arg ** argv,
@@ -78,6 +80,7 @@ int main()
         int pid = getpid();
         // cerr << "pid: " << pid << " || hostname : " << hostname << endl;
         lo_send(t, "/ping", "is", pid, hostname);
+        // memberCleanup(members);
     }
 
     lo_server_thread_free(st);
@@ -98,6 +101,24 @@ int memberCompare(member a, member b)
     }
     return a.pid < b.pid;
 };
+
+void memberCleanup(vector<member> checkMems)
+{
+    vector<member>::iterator checkMemIter;
+    lo_timetag now;
+    lo_timetag_now(&now);
+    for (checkMemIter = checkMems.begin();
+            checkMemIter != checkMems.end();
+            checkMemIter++)
+    {
+        if ((now.sec - checkMemIter->timetag.sec) > 3)
+        {
+            cerr << "DISCONNECTED ~ PID: " << checkMemIter->pid << " || HOSTNAME: " << checkMemIter->hostname << endl;
+            checkMemIter = checkMems.erase(checkMemIter);
+            
+        }
+    }
+}
 
 void error(int num, const char *msg, const char *path)
 {
@@ -120,7 +141,7 @@ int ping_handler(const char *path, const char *types, lo_arg ** argv,
     {
         members.push_back(messageSender);
         sort(members.begin(), members.end(), memberCompare);
-        cerr << "NEW NODE ~ PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
+        cerr << "CONNECTED ~ PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
     }
     
     fflush(stdout);
