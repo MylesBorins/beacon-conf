@@ -74,3 +74,4 @@ osc-server.o: $(SRCDIR)osc-server.cpp
 
 clean:
 	rm -f *~ *# *.o osc-server
+	rm -f *~ *# *.o $(BINDIR)osc-server
