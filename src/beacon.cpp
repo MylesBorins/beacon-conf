@@ -27,13 +27,13 @@ int done = 0;
 
 struct member {
     int pid;
-    char hostname[128];
+    string hostname;
     lo_timetag timetag;
 };
 
 vector<member> members;
 
-int sortMembers(const void *a, const void *b);
+int memberCompare(member a, member b);
 
 void error(int num, const char *m, const char *path);
 
@@ -83,26 +83,14 @@ int main()
     return 0;
 }
 
-int sortMembers(const void *a, const void *b)
+int memberCompare(member a, member b)
 {
-    member *aMem = (member *)a;
-    member *bMem = (member *)b;
-    int name = strcmp(aMem->hostname, bMem->hostname);
+    int name = strcmp(a.hostname.c_str(), b.hostname.c_str());
     if(name != 0)
     {
         return name;
     }
-    int pid = aMem->pid - bMem->pid;
-    if (pid != 0)
-    {
-        return pid;
-    }
-    int seconds = aMem->timetag.sec - bMem->timetag.sec;
-    if (seconds != 0)
-    {
-        return seconds;
-    }
-    return aMem->timetag.frac - bMem->timetag.frac;
+    return a.pid - b.pid;
 };
 
 void error(int num, const char *msg, const char *path)
@@ -118,10 +106,18 @@ int ping_handler(const char *path, const char *types, lo_arg ** argv,
 {
     member messageSender;
     messageSender.pid = argv[0]->i;
-    strcpy(messageSender.hostname, (char *)argv[1]);
+    char *address = (char *)argv[1];
+    messageSender.hostname = address;
+    
     lo_timetag_now(&messageSender.timetag);
-    char *name = (char *)argv[1];
-    cerr << "PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
+
+    if(!std::binary_search(members.begin(), members.end(), messageSender, memberCompare))
+    {
+        members.push_back(messageSender);
+        cerr << "PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
+        cerr << "Size : " << members.size() << endl;
+    }
+    
     fflush(stdout);
 
     return 0;
