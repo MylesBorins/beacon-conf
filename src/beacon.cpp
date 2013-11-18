@@ -18,18 +18,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
+#include <vector>
 
 #include "lo/lo.h"
 using namespace std;
 
 int done = 0;
 
+struct member {
+    int pid;
+    char hostname[128];
+};
+
+vector<member> members;
+
 void error(int num, const char *m, const char *path);
 
-int generic_handler(const char *path, const char *types, lo_arg ** argv,
-                    int argc, void *data, void *user_data);
-
-int foo_handler(const char *path, const char *types, lo_arg ** argv,
+int ping_handler(const char *path, const char *types, lo_arg ** argv,
                 int argc, void *data, void *user_data);
 
 int quit_handler(const char *path, const char *types, lo_arg ** argv,
@@ -45,12 +50,9 @@ int main()
     /* start a new server on port 7770 */
     lo_server_thread st = lo_server_thread_new_multicast("239.255.0.1", "7770", error);
 
-    /* add method that will match any path and args */
-    lo_server_thread_add_method(st, NULL, NULL, generic_handler, NULL);
-
     /* add method that will match the path /foo/bar, with two numbers, coerced
      * to float and int */
-    lo_server_thread_add_method(st, "/foo/bar", "fi", foo_handler, NULL);
+    lo_server_thread_add_method(st, "/ping", "fi", ping_handler, NULL);
 
     /* add method that will match the path /quit with no args */
     lo_server_thread_add_method(st, "/quit", "", quit_handler, NULL);
@@ -64,10 +66,13 @@ int main()
 #else
         usleep(1000000);
 #endif
-        lo_timetag now;
-        lo_timetag_now(&now);
-        cerr << now.sec << endl;
-        lo_send(t, "/foo/bar", "ff", 0.12345f, 0.987653f);
+        char hostname[128] = "";
+
+        gethostname(hostname, sizeof(hostname));
+        
+        int pid = getpid();
+        cerr << "pid: " << pid << " || hostname : " << hostname << endl;
+        lo_send(t, "/ping", "is", pid, hostname);
         // lo_send_from(t, st, now, "/foo/bar", "ff", 0.12345678f, 23.0f);
     }
 
@@ -84,26 +89,10 @@ void error(int num, const char *msg, const char *path)
 
 /* catch any incoming messages and display them. returning 1 means that the
  * message has not been fully handled and the server should try other methods */
-int generic_handler(const char *path, const char *types, lo_arg ** argv,
-                    int argc, void *data, void *user_data)
-{
-    int i;
-
-    printf("path: <%s>\n", path);
-    for (i = 0; i < argc; i++) {
-        printf("arg %d '%c' ", i, types[i]);
-        lo_arg_pp((lo_type)types[i], argv[i]);
-        printf("\n");
-    }
-    printf("\n");
-    fflush(stdout);
-
-    return 1;
-}
-
-int foo_handler(const char *path, const char *types, lo_arg ** argv,
+int ping_handler(const char *path, const char *types, lo_arg ** argv,
                 int argc, void *data, void *user_data)
 {
+    cerr << "PID: " << argv[0]->i << " || path : " << argv[1]->s << endl;
     /* example showing pulling the argument values out of the argv array */
     printf("%s <- f:%f, i:%d\n\n", path, argv[0]->f, argv[1]->i);
     fflush(stdout);
