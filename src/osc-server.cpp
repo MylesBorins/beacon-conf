@@ -18,45 +18,92 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <lo/lo.h>
+#include "lo/lo.h"
 
-const char testdata[6] = "ABCDE";
+int done = 0;
 
-int main(int argc, char *argv[])
+void error(int num, const char *m, const char *path);
+
+int generic_handler(const char *path, const char *types, lo_arg ** argv,
+                    int argc, void *data, void *user_data);
+
+int foo_handler(const char *path, const char *types, lo_arg ** argv,
+                int argc, void *data, void *user_data);
+
+int quit_handler(const char *path, const char *types, lo_arg ** argv,
+                 int argc, void *data, void *user_data);
+
+int main()
 {
-    /* build a blob object from some data */
-    lo_blob btest = lo_blob_new(sizeof(testdata), testdata);
+    /* start a new server on port 7770 */
+    lo_server_thread st = lo_server_thread_new("7770", error);
 
-    /* an address to send messages to. sometimes it is better to let the server
-     * pick a port number for you by passing NULL as the last argument */
-//    lo_address t = lo_address_new_from_url( "osc.unix://localhost/tmp/mysocket" );
-    lo_address t = lo_address_new(NULL, "7770");
+    /* add method that will match any path and args */
+    lo_server_thread_add_method(st, NULL, NULL, generic_handler, NULL);
 
-    if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'q') {
-        /* send a message with no arguments to the path /quit */
-        if (lo_send(t, "/quit", NULL) == -1) {
-            printf("OSC error %d: %s\n", lo_address_errno(t),
-                   lo_address_errstr(t));
-        }
-    } else {
-        /* send a message to /foo/bar with two float arguments, report any
-         * errors */
-        if (lo_send(t, "/foo/bar", "ff", 0.12345678f, 23.0f) == -1) {
-            printf("OSC error %d: %s\n", lo_address_errno(t),
-                   lo_address_errstr(t));
-        }
+    /* add method that will match the path /foo/bar, with two numbers, coerced
+     * to float and int */
+    lo_server_thread_add_method(st, "/foo/bar", "fi", foo_handler, NULL);
 
-        /* send a message to /a/b/c/d with a mixtrure of float and string
-         * arguments */
-        lo_send(t, "/a/b/c/d", "sfsff", "one", 0.12345678f, "three",
-                -0.00000023001f, 1.0);
+    /* add method that will match the path /quit with no args */
+    lo_server_thread_add_method(st, "/quit", "", quit_handler, NULL);
 
-        /* send a 'blob' object to /a/b/c/d */
-        lo_send(t, "/a/b/c/d", "b", btest);
+    lo_server_thread_start(st);
 
-        /* send a jamin scene change instruction with a 32bit integer argument */
-        lo_send(t, "/jamin/scene", "i", 2);
+    while (!done) {
+#ifdef WIN32
+        Sleep(1);
+#else
+        usleep(1000);
+#endif
     }
+
+    lo_server_thread_free(st);
+
+    return 0;
+}
+
+void error(int num, const char *msg, const char *path)
+{
+    printf("liblo server error %d in path %s: %s\n", num, path, msg);
+    fflush(stdout);
+}
+
+/* catch any incoming messages and display them. returning 1 means that the
+ * message has not been fully handled and the server should try other methods */
+int generic_handler(const char *path, const char *types, lo_arg ** argv,
+                    int argc, void *data, void *user_data)
+{
+    int i;
+
+    printf("path: <%s>\n", path);
+    for (i = 0; i < argc; i++) {
+        printf("arg %d '%c' ", i, types[i]);
+        lo_arg_pp((lo_type)types[i], argv[i]);
+        printf("\n");
+    }
+    printf("\n");
+    fflush(stdout);
+
+    return 1;
+}
+
+int foo_handler(const char *path, const char *types, lo_arg ** argv,
+                int argc, void *data, void *user_data)
+{
+    /* example showing pulling the argument values out of the argv array */
+    printf("%s <- f:%f, i:%d\n\n", path, argv[0]->f, argv[1]->i);
+    fflush(stdout);
+
+    return 0;
+}
+
+int quit_handler(const char *path, const char *types, lo_arg ** argv,
+                 int argc, void *data, void *user_data)
+{
+    done = 1;
+    printf("quiting\n\n");
+    fflush(stdout);
 
     return 0;
 }
