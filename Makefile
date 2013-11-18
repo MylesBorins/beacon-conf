@@ -5,6 +5,8 @@ INCLUDES=-I include/
 INCLUDEDIR=./include/
 VPATH=$(INCLUDEDIR)
 
+SRCDIR=./src/
+
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
@@ -20,27 +22,15 @@ LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework AppKit -lstdc++ -lm -llo
 endif
 
-# HELLOBJS= mdns.o hello.o
-
-# SERVOBJS= mdns.o server.o
-
-# CLIENTOBJS = mdns.o client.o
-
 OSCOBJS = osc-server.o
 
 all: osc-server
 	
 osc-server: $(OSCOBJS)
-	$(CXX) -o osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
+	$(CXX) -o bin/osc-server $(OSCOBJS) $(LIBS) $(INCLUDE)
 
-# hello: $(HELLOBJS)
-# 	$(CXX) -o hello $(HELLOBJS) $(LIBS) $(INCLUDE)
-# 
-# client: $(CLIENTOBJS)
-# 	$(CXX) -o client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
-
-osc-server.o: osc-server.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) osc-server.cpp
+osc-server.o: $(SRCDIR)osc-server.cpp
+	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-server.cpp
 
 # hello.o: hello.cpp
 # 	$(CXX) $(FLAGS) $(INCLUDES) hello.cpp
@@ -82,7 +72,4 @@ osc-server.o: osc-server.cpp
 # 	$(CXX) $(FLAGS) RtAudio.cpp
 
 clean:
-	# rm -f *~ *# *.o hello
-	# rm -f *~ *# *.o server
-	# rm -f *~ *# *.o client
 	rm -f *~ *# *.o osc-server
