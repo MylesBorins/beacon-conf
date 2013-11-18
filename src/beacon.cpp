@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 #include <cstring> 
+#include <algorithm>
 
 #include "lo/lo.h"
 using namespace std;
