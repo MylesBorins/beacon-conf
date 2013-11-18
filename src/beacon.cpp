@@ -69,7 +69,7 @@ int main()
 #ifdef WIN32
         Sleep(1);
 #else
-        usleep(1000000);
+        usleep(1500000);
 #endif
         char hostname[128] = "";
 
@@ -90,9 +90,10 @@ int memberCompare(member a, member b)
     int name = strcmp(a.hostname.c_str(), b.hostname.c_str());
     if(name != 0)
     {
-        return name;
+        return name * -1;
     }
-    return a.pid - b.pid;
+    bool test =  a.pid < b.pid;
+    return a.pid < b.pid;
 };
 
 void error(int num, const char *msg, const char *path)
@@ -112,12 +113,10 @@ int ping_handler(const char *path, const char *types, lo_arg ** argv,
     messageSender.hostname = address;
     
     lo_timetag_now(&messageSender.timetag);
-
     if(!std::binary_search(members.begin(), members.end(), messageSender, memberCompare))
     {
         members.push_back(messageSender);
         cerr << "PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
-        cerr << "Size : " << members.size() << endl;
     }
     
     fflush(stdout);
