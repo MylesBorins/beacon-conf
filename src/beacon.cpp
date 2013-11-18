@@ -92,9 +92,9 @@ int memberCompare(member a, member b)
     {
         if (name == -1)
         {
-            return 0
+            return 0;
         }
-        return 1
+        return 1;
     }
     bool test =  a.pid < b.pid;
     return a.pid < b.pid;
