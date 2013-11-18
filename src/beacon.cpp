@@ -33,6 +33,8 @@ struct member {
 
 vector<member> members;
 
+int sortMembers(const void *a, const void *b);
+
 void error(int num, const char *m, const char *path);
 
 int ping_handler(const char *path, const char *types, lo_arg ** argv,
@@ -80,6 +82,28 @@ int main()
 
     return 0;
 }
+
+int sortMembers(const void *a, const void *b)
+{
+    member *aMem = (member *)a;
+    member *bMem = (member *)b;
+    int name = strcmp(aMem->hostname, bMem->hostname);
+    if(name != 0)
+    {
+        return name;
+    }
+    int pid = aMem->pid - bMem->pid;
+    if (pid != 0)
+    {
+        return pid;
+    }
+    int seconds = aMem->timetag.sec - bMem->timetag.sec;
+    if (seconds != 0)
+    {
+        return seconds;
+    }
+    return aMem->timetag.frac - bMem->timetag.frac;
+};
 
 void error(int num, const char *msg, const char *path)
 {
