@@ -119,6 +119,7 @@ int ping_handler(const char *path, const char *types, lo_arg ** argv,
     if(!std::binary_search(members.begin(), members.end(), messageSender, memberCompare))
     {
         members.push_back(messageSender);
+        sort(members.begin(), members.end(), memberCompare);
         cerr << "NEW NODE ~ PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
     }
     
