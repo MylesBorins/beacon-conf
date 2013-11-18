@@ -88,15 +88,14 @@ int main()
 int memberCompare(member a, member b)
 {
     int name = strcmp(a.hostname.c_str(), b.hostname.c_str());
-    if(name != 0)
+    if(name == -1)
     {
-        if (name == -1)
-        {
-            return 0;
-        }
         return 1;
     }
-    bool test =  a.pid < b.pid;
+    else if (name == 1)
+    {
+        return 0;
+    }
     return a.pid < b.pid;
 };
 
