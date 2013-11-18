@@ -10,17 +10,17 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 FLAGS=-D__UNIX_JACK__ -c -g
 LIBS=-lasound -lpthread -ljack -lstdc++ -lm \
-	-lGL -lGLU -lglut -ldns_sd
+	-lGL -lGLU -lglut -ldns_sd -llo
 endif
 ifeq ($(UNAME), Darwin)
 FLAGS=-D__MACOSX_CORE__ -c -g
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework IOKit -framework Carbon  -framework OpenGL \
 	-framework GLUT -framework Foundation \
-	-framework AppKit -lstdc++ -lm
+	-framework AppKit -lstdc++ -lm -llo
 endif
 
-HELLOBJS= mdns.o hello.o
+# HELLOBJS= mdns.o hello.o
 
 # SERVOBJS= mdns.o server.o
 
