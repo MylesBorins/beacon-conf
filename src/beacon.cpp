@@ -71,7 +71,7 @@ int main()
 #ifdef WIN32
         Sleep(1);
 #else
-        usleep(1500000);
+        usleep(1000000);
 #endif
         char hostname[128] = "";
 
