@@ -23,30 +23,15 @@ LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework AppKit -lstdc++ -lm -llo
 endif
 
-SERVEROBJS = osc-server.o 
-CLIENTOBJS = osc-client.o
 BEACONOBJS = beacon.o
 
-all: beacon osc-server osc-client
+all: beacon
 
 beacon: $(BEACONOBJS)
 	$(CXX) -o $(BINDIR)beacon $(BEACONOBJS) $(LIBS) $(INCLUDE)
 	
-osc-server: $(SERVEROBJS)
-	$(CXX) -o $(BINDIR)osc-server $(SERVEROBJS) $(LIBS) $(INCLUDE)
-
-osc-client: $(CLIENTOBJS)
-	$(CXX) -o $(BINDIR)osc-client $(CLIENTOBJS) $(LIBS) $(INCLUDE)
-
-
 beacon.o: $(SRCDIR)beacon.cpp
 	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)beacon.cpp
-
-osc-server.o: $(SRCDIR)osc-server.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-server.cpp
-
-osc-client.o: $(SRCDIR)osc-client.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) $(SRCDIR)osc-client.cpp
 
 # OBJS=  RtAudio.o chuck_fft.o Thread.o Stk.o VoxeLib.o voxelMeter.o
 # 
