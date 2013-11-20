@@ -19,8 +19,10 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
-#include <cstring> 
+#include <cstring>
+#include <sstream>
 #include <algorithm>
+#include <map>
 
 #include "lo/lo.h"
 using namespace std;
@@ -33,11 +35,22 @@ struct member {
     lo_timetag timetag;
 };
 
-vector<member> members;
+class memberCompare {
+public:
+    bool operator()(const char * a, const char * b)
+    {
+        int diff = strcmp(a,b);
+        if(diff == -1)
+        {
+            return 1;
+        }
+        return 0;
+    }
+};
 
-int memberCompare(member a, member b);
+std::map<string, member> members;
 
-void memberCleanup(vector<member> checkMems);
+void memberCleanup(map<string, member> *checkMems);
 
 void error(int num, const char *m, const char *path);
 
@@ -78,9 +91,8 @@ int main()
         gethostname(hostname, sizeof(hostname));
         
         int pid = getpid();
-        // cerr << "pid: " << pid << " || hostname : " << hostname << endl;
         lo_send(t, "/ping", "is", pid, hostname);
-        // memberCleanup(members);
+        memberCleanup(&members);
     }
 
     lo_server_thread_free(st);
@@ -88,34 +100,18 @@ int main()
     return 0;
 }
 
-int memberCompare(member a, member b)
+void memberCleanup(map<string, member> *checkMems)
 {
-    int name = strcmp(a.hostname.c_str(), b.hostname.c_str());
-    if(name == -1)
-    {
-        return 1;
-    }
-    else if (name == 1)
-    {
-        return 0;
-    }
-    return a.pid < b.pid;
-};
-
-void memberCleanup(vector<member> checkMems)
-{
-    vector<member>::iterator checkMemIter;
+    map<string, member>::iterator iter;
     lo_timetag now;
     lo_timetag_now(&now);
-    for (checkMemIter = checkMems.begin();
-            checkMemIter != checkMems.end();
-            checkMemIter++)
+    for (iter = checkMems->begin(); iter != checkMems->end(); iter++)
     {
-        if ((now.sec - checkMemIter->timetag.sec) > 3)
+        member iterMem = iter->second;
+        if ((now.sec - iterMem.timetag.sec) > 3)
         {
-            cerr << "DISCONNECTED ~ PID: " << checkMemIter->pid << " || HOSTNAME: " << checkMemIter->hostname << endl;
-            checkMemIter = checkMems.erase(checkMemIter);
-            
+            cerr << "DISCONNECTED ~ PID: " << iterMem.pid << " || HOSTNAME: " << iterMem.hostname << endl;
+            checkMems->erase(iter->first);
         }
     }
 }
@@ -133,17 +129,16 @@ int ping_handler(const char *path, const char *types, lo_arg ** argv,
 {
     member messageSender;
     messageSender.pid = argv[0]->i;
-    char *address = (char *)argv[1];
-    messageSender.hostname = address;
-    
+    messageSender.hostname = (char *)argv[1];
     lo_timetag_now(&messageSender.timetag);
-    if(!std::binary_search(members.begin(), members.end(), messageSender, memberCompare))
+    ostringstream convert;
+    convert << messageSender.pid;
+    string key = messageSender.hostname + ":" + convert.str();
+    if (members[key].timetag.sec == 0)
     {
-        members.push_back(messageSender);
-        sort(members.begin(), members.end(), memberCompare);
-        cerr << "CONNECTED ~ PID: " << messageSender.pid << " || path : " <<  messageSender.hostname << " || timestamp : " << messageSender.timetag.sec << endl;
+        cerr << "CONNECTED ~ Hostname: " << messageSender.hostname << " || PID : " <<  messageSender.pid << " || timestamp : " << messageSender.timetag.sec << endl;
     }
-    
+    members[key] = messageSender;
     fflush(stdout);
 
     return 0;
