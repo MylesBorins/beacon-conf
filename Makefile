@@ -12,7 +12,7 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
 FLAGS=-c -g -L/opt/lib
-LIBS=-lm
+LIBS=-llo
 endif
 ifeq ($(UNAME), Darwin)
 FLAGS=-c -g
