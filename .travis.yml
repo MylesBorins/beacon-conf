@@ -2,5 +2,10 @@ language: cpp
 compiler:
   - gcc
   - clang
-# Change this to your needs
-script: make
+before_install:
+  - sudo apt-get update
+  - sudo apt-get upgrade
+install:
+  - sudo apt-get install liblo-dev
+script:
+  - make
