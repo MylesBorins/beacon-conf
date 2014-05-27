@@ -6,6 +6,8 @@ Primarily written by Myles Borins
 During the Fall of 2013
 A Special thanks to Ge Wang, and William Light
 
+Inspiration was taken from Osceleton Copyright (C) 2004 Steve Harris, Uwe Koloska
+
 ##About
 
 This starts off where I left off with libmdns.
